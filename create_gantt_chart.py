@@ -4,67 +4,47 @@ from openpyxl.styles import PatternFill, Font, Alignment
 from openpyxl.utils import get_column_letter
 import traceback
 
-# Note: This script expects 'pilot_engineer_activities.md' to be in the same directory.
+# Hardcoded activity data to bypass markdown parsing issues
+ACTIVITIES_DATA = [
+    {"type": "engineer_header", "name": "Engineer 1: Central UAT Test Case Identification & Migration"},
+    {"type": "phase_header", "name": "Phase 1: Discovery, Analysis & Planning (Est. Months 1-2)"},
+    {"type": "activity", "activity_num": "1.", "name": "Deep Dive into Existing UAT Processes & Test Assets", "timeline_raw_str": "Weeks 1-3 (~10-12 person-days)"},
+    {"type": "activity", "activity_num": "2.", "name": "Identify & Prioritize UAT Scenarios for Automation", "timeline_raw_str": "Weeks 3-6 (~12-15 person-days, overlapping with activity 1 & 3)"},
+    {"type": "activity", "activity_num": "3.", "name": "Master BDD Tooling & Methodology", "timeline_raw_str": "Weeks 2-5 (Can be concurrent; dedicated learning ~5-7 person-days)"},
+    {"type": "phase_header", "name": "Phase 2: Migration, Automation Development & Initial Integration (Est. Months 3-4)"},
+    {"type": "activity", "activity_num": "4.", "name": "Convert Selected UAT Scenarios to BDD (Gherkin)", "timeline_raw_str": "Weeks 7-10 (~15-18 person-days)"},
+    {"type": "activity", "activity_num": "5.", "name": "Develop Automated Test Scripts using Playwright", "timeline_raw_str": "Weeks 9-16 (~25-30 person-days, significant overlap with activity 4 initially, then focused development)"},
+    {"type": "activity", "activity_num": "6.", "name": "Setup & Test Execution in DT2 Environment", "timeline_raw_str": "Weeks 15-18 (~8-10 person-days, concurrent with later stages of Activity 5)"},
+    {"type": "phase_header", "name": "Phase 3: Refinement, Reporting & Knowledge Transfer Preparation (Est. Months 5-6)"},
+    {"type": "activity", "activity_num": "7.", "name": "Iterate and Refine Automated UAT Suite", "timeline_raw_str": "Weeks 17-24 (~15-20 person-days, ongoing)"},
+    {"type": "activity", "activity_num": "8.", "name": "Establish Automated UAT Reporting", "timeline_raw_str": "Weeks 19-22 (~7-10 person-days)"},
+    {"type": "activity", "activity_num": "9.", "name": "Document Best Practices & Create Migration Playbook", "timeline_raw_str": "Weeks 20-24 (~8-10 person-days, ongoing documentation build-up)"},
+    {"type": "activity", "activity_num": "10.", "name": "Prepare for Knowledge Sharing & Team Onboarding", "timeline_raw_str": "Weeks 22-24 (~5-7 person-days)"},
 
-def parse_markdown_for_gantt(md_text):
-    activities = []
-    current_engineer = None
-    current_phase = None
-    
-    engineer_regex = re.compile(r"^## (Engineer \d+:.*)")
-    phase_regex = re.compile(r"^\*\*Phase \d+: (.*?)(?:\s*\((?:Est\.|Estimated)?\s*Months\s*\d+-\d+\))?\*\*")
-    activity_regex = re.compile(r"^(\d+\.)\s*\*\*(.*)\*\*")
-    # CORRECTED Regex for Timeline lines, accounting for markdown bold **Timeline/Effort:**
-    timeline_capture_regex = re.compile(r"^\s*\*\s*\*\*Timeline/Effort:\*\*\s*(Weeks\s*(\d+)-(\d+).*)")
+    {"type": "engineer_header", "name": "Engineer 2: Embedding New Ways of Working & Engineering Practices"},
+    {"type": "phase_header", "name": "Phase 1: Assessment, Strategy Definition & Foundational Setup (Est. Months 1-2)"},
+    {"type": "activity", "activity_num": "1.", "name": "Baseline Current Engineering Practices & CI/CD Maturity", "timeline_raw_str": "Weeks 1-3 (~10-12 person-days)"},
+    {"type": "activity", "activity_num": "2.", "name": "Develop & Communicate Pilot Engineering Practices Adoption Strategy", "timeline_raw_str": "Weeks 2-4 (~7-8 person-days)"},
+    {"type": "activity", "activity_num": "3.", "name": "Tooling Onboarding & Environment Preparation", "timeline_raw_str": "Weeks 3-6 (Can be concurrent; dedicated effort ~8-10 person-days)"},
+    {"type": "phase_header", "name": "Phase 2: Implementation, Coaching & CI/CD Integration (Est. Months 3-4)"},
+    {"type": "activity", "activity_num": "4.", "name": "Drive Adoption of Unit Testing & Developer-Led Testing", "timeline_raw_str": "Weeks 7-16 (~20-25 person-days, ongoing coaching and support)"},
+    {"type": "activity", "activity_num": "5.", "name": "Integrate Automated Tests into CI/CD Pipelines (GitHub Actions Focus)", "timeline_raw_str": "Weeks 9-16 (~20-25 person-days, heavy collaboration with squads)"},
+    {"type": "activity", "activity_num": "6.", "name": "Establish & Champion Mocking Practices (Mockito/MockFlow)", "timeline_raw_str": "Weeks 10-15 (~10-12 person-days, concurrent with other activities)"},
+    {"type": "phase_header", "name": "Phase 3: Optimization, Standardization & Knowledge Dissemination (Est. Months 5-6)"},
+    {"type": "activity", "activity_num": "7.", "name": "Refine CI/CD Pipelines (GitHub Actions) and Test Execution Efficiency", "timeline_raw_str": "Weeks 17-24 (~10-15 person-days, ongoing)"},
+    {"type": "activity", "activity_num": "8.", "name": "Develop & Document Standardized Engineering Playbooks", "timeline_raw_str": "Weeks 18-24 (~15-18 person-days, ongoing documentation build-up)"},
+    {"type": "activity", "activity_num": "9.", "name": "Facilitate Performance Profiling Setup", "timeline_raw_str": "Weeks 20-23 (~5-7 person-days)"},
+    {"type": "activity", "activity_num": "10.", "name": "Prepare for Scaling & Knowledge Transfer", "timeline_raw_str": "Weeks 22-24 (~7-10 person-days)"}
+]
 
-    lines = md_text.splitlines()
-    
-    for i, line in enumerate(lines):
-        eng_match = engineer_regex.match(line)
-        if eng_match:
-            current_engineer = eng_match.group(1).strip()
-            current_phase = None 
-            activities.append({"type": "engineer_header", "name": current_engineer})
-            continue
-
-        phase_match = phase_regex.match(line)
-        if phase_match:
-            phase_name_full = phase_match.group(1).strip()
-            current_phase = phase_name_full
-            activities.append({"type": "phase_header", "name": current_phase, "engineer": current_engineer })
-            continue
-        
-        activity_match = activity_regex.match(line)
-        if activity_match:
-            activity_num = activity_match.group(1)
-            activity_name = activity_match.group(2).strip()
-            
-            timeline_raw_str = ""
-            week_str_display = ""
-            
-            # Search for timeline in the next few lines following an activity
-            for j in range(i + 1, min(i + 4, len(lines))): 
-                current_line_for_timeline_check = lines[j]
-                timeline_match_for_activity = timeline_capture_regex.match(current_line_for_timeline_check)
-                if timeline_match_for_activity:
-                    timeline_raw_str = timeline_match_for_activity.group(1).strip() 
-                    start_w = timeline_match_for_activity.group(2) 
-                    end_w = timeline_match_for_activity.group(3)   
-                    week_str_display = f"(W{start_w}-W{end_w})"
-                    break 
-            
-            activities.append({
-                "type": "activity",
-                "engineer": current_engineer,
-                "phase": current_phase,
-                "activity_num": activity_num,
-                "name": activity_name,
-                "timeline_raw_str": timeline_raw_str, 
-                "week_str": week_str_display
-            })
-            continue
-            
-    return activities
+def extract_week_str(timeline_raw_str):
+    if not timeline_raw_str: return ""
+    week_match = re.search(r"Weeks\s*(\d+)-(\d+)", timeline_raw_str, re.IGNORECASE)
+    if week_match:
+        start_w = week_match.group(1)
+        end_w = week_match.group(2)
+        return f"(W{start_w}-W{end_w})"
+    return ""
 
 def parse_timeline_to_sprint_indices(timeline_raw_str, num_total_sprints=12):
     sprint_indices = set()
@@ -85,41 +65,39 @@ def parse_timeline_to_sprint_indices(timeline_raw_str, num_total_sprints=12):
                     sprint_indices.add(sprint_idx)
             return sorted(list(sprint_indices))
         except ValueError:
-            print(f"Warning: Could not parse week numbers from timeline string: {timeline_raw_str}")
+            print(f"DEBUG_SPRINT_PARSE_ERROR: Could not parse week numbers from timeline string: {timeline_raw_str}")
             return []
-        
     return sorted(list(sprint_indices))
 
-
-def create_gantt_excel(activities_data, filename="pilot_gantt_chart_sprints.xlsx"):
+def create_gantt_excel(data, filename="pilot_gantt_chart_sprints.xlsx"):
     wb = Workbook()
     ws = wb.active
     ws.title = "Pilot Gantt (Sprints)"
 
     header_font = Font(bold=True, color="FFFFFF")
-    header_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid") # Blue
-    activity_fill = PatternFill(start_color="B4C6E7", end_color="B4C6E7", fill_type="solid") # Light Blue
-    engineer_header_fill = PatternFill(start_color="A52A2A", end_color="A52A2A", fill_type="solid") # Brown
-    phase_header_fill = PatternFill(start_color="228B22", end_color="228B22", fill_type="solid") # Forest Green
+    header_fill = PatternFill(start_color="002060", end_color="002060", fill_type="solid")
+    activity_fill = PatternFill(start_color="AEAAAA", end_color="AEAAAA", fill_type="solid")
+    engineer_header_fill = PatternFill(start_color="C00000", end_color="C00000", fill_type="solid")
+    phase_header_fill = PatternFill(start_color="00B050", end_color="00B050", fill_type="solid") 
     phase_font = Font(bold=True, size=12, color="FFFFFF")
 
     num_sprints = 12 
-    sprint_headers = [f"Sprint {i+1} (W{2*i+1}-{2*i+2})" for i in range(num_sprints)]
+    sprint_headers = [f"Sprint {i+1}\n(W{2*i+1}-W{2*i+2})" for i in range(num_sprints)]
     
     ws.cell(row=1, column=1, value="Activity / Task (Est. Timeline)").font = header_font
     ws.cell(row=1, column=1).fill = header_fill
-    ws.column_dimensions[get_column_letter(1)].width = 100 
+    ws.column_dimensions[get_column_letter(1)].width = 105
 
     for col_num, sprint_name in enumerate(sprint_headers, 2):
         cell = ws.cell(row=1, column=col_num, value=sprint_name)
         cell.font = header_font
         cell.fill = header_fill
         cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
-        ws.column_dimensions[get_column_letter(col_num)].width = 16
+        ws.column_dimensions[get_column_letter(col_num)].width = 12
 
     current_row = 2
-    activity_count = 0
-    for item in activities_data:
+    activity_display_count = 0
+    for item in data: # Use the hardcoded data directly
         if item["type"] == "engineer_header":
             cell = ws.cell(row=current_row, column=1, value=item["name"])
             cell.font = Font(bold=True, size=14, color="FFFFFF")
@@ -137,17 +115,16 @@ def create_gantt_excel(activities_data, filename="pilot_gantt_chart_sprints.xlsx
             ws.row_dimensions[current_row].height = 20
             current_row += 1
         elif item["type"] == "activity":
-            activity_count += 1
-            activity_display_name = f"{item['activity_num']} {item['name']} {item.get('week_str', '')}".strip()
+            activity_display_count += 1
+            week_str_display = extract_week_str(item.get("timeline_raw_str", ""))
+            activity_display_name = f"{item['activity_num']} {item['name']} {week_str_display}".strip()
             name_cell = ws.cell(row=current_row, column=1, value=activity_display_name)
             name_cell.alignment = Alignment(wrap_text=True, vertical="top", indent=2) 
             
-            if not item["timeline_raw_str"]:
-                print(f"Warning: Activity '{activity_display_name}' (parsed as item #{activity_count}) has no timeline_raw_str, skipping bar.")
+            sprint_indices_to_color = parse_timeline_to_sprint_indices(item.get("timeline_raw_str", ""), num_sprints)
+            if not item.get("timeline_raw_str") or not sprint_indices_to_color:
+                print(f"OUTPUT_WARNING: Activity '{activity_display_name}' ({item['activity_num'][:-1]}) will have no bar (timeline missing or unparsable: '{item.get('timeline_raw_str', 'N/A')}').")
             
-            sprint_indices_to_color = parse_timeline_to_sprint_indices(item["timeline_raw_str"], num_sprints)
-            if not sprint_indices_to_color and item["timeline_raw_str"]:
-                 print(f"Debug: For activity '{activity_display_name}', timeline_raw_str '{item['timeline_raw_str']}' resulted in no sprint indices.")
             for sprint_idx in sprint_indices_to_color:
                 col_to_color = sprint_idx + 2 
                 ws.cell(row=current_row, column=col_to_color).fill = activity_fill
@@ -158,36 +135,35 @@ def create_gantt_excel(activities_data, filename="pilot_gantt_chart_sprints.xlsx
 
     try:
         wb.save(filename)
-        print(f"Gantt chart '{filename}' created successfully with improved sprint-based timelines and activity details. Total activities processed for rows: {activity_count}")
+        print(f"EXCEL_INFO: Gantt chart '{filename}' saved. Rows for activities written: {activity_display_count}")
     except Exception as e:
-        print(f"Error saving Excel file '{filename}': {e}")
+        print(f"EXCEL_ERROR: Error saving Excel file '{filename}': {e}")
         traceback.print_exc()
-    return activity_count # Return a value to check if activities were found
+    return activity_display_count 
 
 if __name__ == "__main__":
-    markdown_file_path = "pilot_engineer_activities.md"
-    print(f"Attempting to read markdown file: {markdown_file_path}")
-    final_activity_count = 0
+    print(f"SCRIPT_INFO: Main script execution started using hardcoded data.")
+    activities_written_to_excel = 0
     try:
-        with open(markdown_file_path, "r", encoding="utf-8") as f:
-            markdown_file_content = f.read()
-        print("Markdown file read successfully.")
-        activities_data_from_file = parse_markdown_for_gantt(markdown_file_content)
+        actual_activities_from_hardcoded_data = [item for item in ACTIVITIES_DATA if item['type'] == 'activity']
+        print(f"SCRIPT_INFO: Using {len(actual_activities_from_hardcoded_data)} hardcoded activity entries from ACTIVITIES_DATA list.")
         
-        if not activities_data_from_file:
-            print(f"Major Warning: NO activities were parsed from {markdown_file_path}. Gantt chart will likely be empty or incorrect.")
+        activities_with_timelines = [act for act in actual_activities_from_hardcoded_data if act.get('timeline_raw_str')]
+        print(f"SCRIPT_INFO: Out of {len(actual_activities_from_hardcoded_data)} hardcoded activities, {len(activities_with_timelines)} have a timeline_raw_str.")
+        if len(activities_with_timelines) < len(actual_activities_from_hardcoded_data):
+            missing_timeline_activities = [act['name'] for act in actual_activities_from_hardcoded_data if not act.get('timeline_raw_str')]
+            print(f"SCRIPT_WARNING: {len(actual_activities_from_hardcoded_data) - len(activities_with_timelines)} hardcoded activities are missing timeline strings (their bars will be empty):")
+            for missing_act_name in missing_timeline_activities:
+                print(f"    - Missing timeline for: {missing_act_name}")
         else:
-            parsed_activities_only = [item for item in activities_data_from_file if item['type'] == 'activity']
-            print(f"Successfully parsed {len(activities_data_from_file)} total items (headers/activities); found {len(parsed_activities_only)} actual activity entries from {markdown_file_path}.")
+            print("SCRIPT_INFO: All hardcoded activities appear to have timeline strings.")
         
-        final_activity_count = create_gantt_excel(activities_data_from_file, filename="pilot_gantt_chart_sprints.xlsx")
-        if final_activity_count == 0 and len(parsed_activities_only) > 0:
-            print(f"CRITICAL WARNING: The script processed {len(parsed_activities_only)} parsed activities but wrote 0 activity rows to Excel. Check Excel generation logic.")
-        elif final_activity_count > 0:
-            print(f"Confirmed {final_activity_count} activity rows were written to Excel.")
+        activities_written_to_excel = create_gantt_excel(ACTIVITIES_DATA, filename="pilot_gantt_chart_sprints.xlsx")
+        if activities_written_to_excel > 0:
+            print(f"SCRIPT_INFO: Confirmed {activities_written_to_excel} activity rows were written to Excel.")
+        elif len(actual_activities_from_hardcoded_data) > 0:
+             print(f"SCRIPT_WARNING: Processed {len(actual_activities_from_hardcoded_data)} hardcoded activities but wrote 0 activity display rows to Excel. Check create_gantt_excel item loop.")
 
-    except FileNotFoundError:
-        print(f"CRITICAL ERROR: Markdown file {markdown_file_path} not found. Cannot generate Gantt chart.")
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+        print(f"SCRIPT_CRITICAL_ERROR: An unexpected error occurred during script execution: {e}")
         traceback.print_exc()
