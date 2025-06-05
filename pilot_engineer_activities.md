@@ -93,8 +93,8 @@
 6.  **Setup & Test Execution in DT2 Environment**
     *   **Activities:**
         *   Collaborate with the Eng. Practices Eng. to ensure the automated UAT scripts (ReqNRoll/Playwright) can be configured and executed in the dedicated DT2 environment (roadmap page 11).
-        *   **Develop GitHub Actions workflows to trigger the automated UAT suite (e.g., on a schedule, on deployment to DT2, or manually triggered for UAT phase).**
-        *   **Configure test execution to parse and publish test results (e.g., JUnit XML, HTML reports) for CI/CD visibility and stakeholder review within GitHub Actions.**
+        *   Develop GitHub Actions workflows to trigger the automated UAT suite (e.g., on a schedule, on deployment to DT2, or manually triggered for UAT phase).
+        *   Configure test execution to parse and publish test results (e.g., JUnit XML, HTML reports) for CI/CD visibility and stakeholder review within GitHub Actions.
         *   Perform initial test runs in DT2, troubleshoot environmental/script issues, and ensure stability.
     *   **Timeline/Effort:** Weeks 15-18 (~8-10 person-days, concurrent with later stages of Activity 5)
     *   **Dependencies/Requirements:**
@@ -116,7 +116,7 @@
 7.  **Iterate and Refine Automated UAT Suite**
     *   **Activities:**
         *   Based on execution results and feedback, continuously refine and stabilize the automated UAT test scripts. Address flakiness.
-        *   **Investigate and implement Playwright's test concurrency features (sharding, parallel workers) within GitHub Actions to optimize UAT suite execution time.**
+        *   Investigate and implement Playwright's test concurrency features (sharding, parallel workers) within GitHub Actions to optimize UAT suite execution time.
         *   Implement intelligent retry mechanisms for inherently flaky tests, with clear reporting on retries. Ensure this doesn't hide persistent issues.
         *   Expand coverage by automating more UAT scenarios from the prioritized backlog as time permits.
     *   **Timeline/Effort:** Weeks 17-24 (~15-20 person-days, ongoing)
@@ -180,13 +180,17 @@
 **Phase 1: Assessment, Strategy Definition & Foundational Setup (Est. Months 1-2)**
 
 1.  **Baseline Current Engineering Practices & CI/CD Maturity**
-    *   **(No major technical sub-tasks here, primarily assessment)**
+    *   **Activities:**
+        *   Conduct workshops and interviews with pilot squad members to map their existing development lifecycle, branching, build processes, testing, and CI/CD.
+        *   Identify key pain points, inefficiencies, and gaps against roadmap goals (e.g., lack of unit tests, manual regression, unstable environments – roadmap pages 3, 4, 13).
     *   **Timeline/Effort:** Weeks 1-3 (~10-12 person-days)
     *   **Dependencies/Requirements:** (As previously defined)
     *   **Deliverables:** (As previously defined)
 
 2.  **Develop & Communicate Pilot Engineering Practices Adoption Strategy**
-    *   **(Primarily strategic, less about deep technical sub-tasks at this point)**
+    *   **Activities:**
+        *   Based on the roadmap (esp. pages 10, 11, 13, 14) and baseline assessment, define a tailored strategy for introducing new practices in pilot squads (unit testing, BDD, mocking, CI/CD test integration, developer ownership).
+        *   Socialize this strategy, benefits, and the Sirius Roadmap vision with pilot squads.
     *   **Timeline/Effort:** Weeks 2-4 (~7-8 person-days)
     *   **Dependencies/Requirements:** (As previously defined)
     *   **Deliverables:** (As previously defined)
@@ -194,8 +198,8 @@
 3.  **Tooling Onboarding & Environment Preparation**
     *   **Activities:**
         *   Organize/deliver initial training/awareness for pilot squads on ReqNRoll/Playwright, Mockito/MockFlow (page 8), and PEGA unit testing (page 6).
-        *   **Provide technical setup guides/scripts for local development environments for these tools.**
-        *   Collaborate with platform teams to ensure pilot squads understand DT2 usage (page 11) and **how to configure GitHub Actions runners (if self-hosted) or utilize GitHub-hosted runners effectively for DT2 interactions.**
+        *   Provide technical setup guides/scripts for local development environments for these tools.
+        *   Collaborate with platform teams to ensure pilot squads understand DT2 usage (page 11) and how to configure GitHub Actions runners (if self-hosted) or utilize GitHub-hosted runners effectively for DT2 interactions.
     *   **Timeline/Effort:** Weeks 3-6 (Can be concurrent; dedicated effort ~8-10 person-days)
     *   **Dependencies/Requirements:** (As previously defined) + GitHub Actions access and understanding of runner configurations.
     *   **Deliverables:** (As previously defined) + Basic setup guides for local tooling.
@@ -207,9 +211,9 @@
 4.  **Drive Adoption of Unit Testing & Developer-Led Testing**
     *   **Activities:**
         *   Actively coach/mentor developers in pilot squads on writing effective unit tests.
-        *   **Guide squads in setting up PEGA unit test cases using PegaUnit or relevant tools within the PEGA platform, including configuring test rulesets and data transforms.**
-        *   **Coach on mocking data pages, activities, and connectors effectively within PEGA unit tests to isolate units of work.**
-        *   Help squads integrate unit tests into their development workflow (execution on dev branch push via **GitHub Actions** - page 10).
+        *   Guide squads in setting up PEGA unit test cases using PegaUnit or relevant tools within the PEGA platform, including configuring test rulesets and data transforms.
+        *   Coach on mocking data pages, activities, and connectors effectively within PEGA unit tests to isolate units of work.
+        *   Help squads integrate unit tests into their development workflow (execution on dev branch push via GitHub Actions - page 10).
         *   Champion "squads own test automation" and "test automation as part of Definition of Done (DoD)" (page 10).
     *   **Timeline/Effort:** Weeks 7-16 (~20-25 person-days, ongoing coaching and support)
     *   **Dependencies/Requirements:** (As previously defined) + Access to PEGA Dev Studio, PegaUnit documentation.
@@ -217,10 +221,10 @@
 
 5.  **Integrate Automated Tests into CI/CD Pipelines (GitHub Actions Focus)**
     *   **Activities:**
-        *   Work hands-on with pilot squads to design and configure **GitHub Actions YAML workflows** for a comprehensive CI/CD pipeline.
-        *   **Define GitHub Actions workflow triggers (e.g., `on: [push]` to feature branches, `on: pull_request` to main/squad branches, `workflow_dispatch` for manual runs).**
-        *   **Implement distinct jobs/stages within GitHub Actions for: build, static analysis (e.g., SonarLint/SonarQube integration), unit tests (Java, JS, PEGA), API/integration tests, and BDD UI tests (coordinated with UAT Eng).**
-        *   **Configure quality gates in GitHub Actions (e.g., fail build on test failure, check code coverage thresholds from tools like JaCoCo/Istanbul and fail if below target, integrate SonarQube quality gates).**
+        *   Work hands-on with pilot squads to design and configure GitHub Actions YAML workflows for a comprehensive CI/CD pipeline.
+        *   Define GitHub Actions workflow triggers (e.g., `on: [push]` to feature branches, `on: pull_request` to main/squad branches, `workflow_dispatch` for manual runs).
+        *   Implement distinct jobs/stages within GitHub Actions for: build, static analysis (e.g., SonarLint/SonarQube integration), unit tests (Java, JS, PEGA), API/integration tests, and BDD UI tests (coordinated with UAT Eng).
+        *   Configure quality gates in GitHub Actions (e.g., fail build on test failure, check code coverage thresholds from tools like JaCoCo/Istanbul and fail if below target, integrate SonarQube quality gates).
         *   Ensure test results (JUnit XML, etc.) are published as artifacts in GitHub Actions and provide fast feedback to developers (e.g., via PR comments or status checks).
         *   Automate deployment to DT2 from GitHub Actions upon successful completion of quality gates on squad/main branches.
     *   **Timeline/Effort:** Weeks 9-16 (~20-25 person-days, heavy collaboration with squads)
@@ -232,8 +236,8 @@
 6.  **Establish & Champion Mocking Practices (Mockito/MockFlow)**
     *   **Activities:**
         *   Guide pilot squads in identifying external dependencies for mocking.
-        *   **Assist squads in setting up Mockito for Java-based service mocking or configuring WireMock/MockServer instances for broader API mocking, potentially run as Docker containers managed via CI/CD.**
-        *   **Develop MockFlow configurations (as per roadmap page 8) to package and deploy these mocks (e.g., mock server configurations, Docker images) to Dev and DT2 environments via GitHub Actions.**
+        *   Assist squads in setting up Mockito for Java-based service mocking or configuring WireMock/MockServer instances for broader API mocking, potentially run as Docker containers managed via CI/CD.
+        *   Develop MockFlow configurations (as per roadmap page 8) to package and deploy these mocks (e.g., mock server configurations, Docker images) to Dev and DT2 environments via GitHub Actions.
         *   Coach on using mocking tools and ensure test scripts are configured to point to mocked service endpoints during CI test runs.
     *   **Timeline/Effort:** Weeks 10-15 (~10-12 person-days, concurrent with other activities)
     *   **Dependencies/Requirements:** (As previously defined) + Docker knowledge (if using containerized mocks), MockFlow tool/library access and documentation.
@@ -246,25 +250,25 @@
 7.  **Refine CI/CD Pipelines (GitHub Actions) and Test Execution Efficiency**
     *   **Activities:**
         *   Monitor CI/CD pipeline (GitHub Actions) performance and test execution times (aiming for <30 min for DT2 full suite, page 11).
-        *   Work with squads to optimize by: **implementing GitHub Actions best practices like reusable workflows (`workflow_call`), matrix builds for parallel testing across configurations (e.g., different browsers/Java versions), advanced dependency caching strategies.**
-        *   **Analyze GitHub Actions execution logs and timing charts to identify bottlenecks in build and test stages.**
+        *   Work with squads to optimize by: implementing GitHub Actions best practices like reusable workflows (`workflow_call`), matrix builds for parallel testing across configurations (e.g., different browsers/Java versions), advanced dependency caching strategies.
+        *   Analyze GitHub Actions execution logs and timing charts to identify bottlenecks in build and test stages.
         *   Refine quality gate rules and thresholds based on pilot experience.
-        *   **Implement strategies for NFRs such as using test concurrency to optimise test execution time for end-to-end journeys (Playwright).**
+        *   Implement strategies for NFRs such as using test concurrency to optimise test execution time for end-to-end journeys (Playwright).
     *   **Timeline/Effort:** Weeks 17-24 (~10-15 person-days, ongoing)
     *   **Dependencies/Requirements:** (As previously defined) + Advanced GitHub Actions knowledge.
     *   **Deliverables:** (As previously defined) + Optimized GitHub Actions workflows, documented pipeline optimization techniques.
 
 8.  **Develop & Document Standardized Engineering Playbooks**
     *   **Activities:**
-        *   Based on pilot experiences, document standardized approaches, including **detailed technical guides for setting up and configuring GitHub Actions workflows for various testing types,** PEGA unit testing with PegaUnit, Mockito/MockFlow usage, BDD test implementation with ReqNRoll/Playwright, and branching strategies that integrate seamlessly with GitHub Actions.
+        *   Based on pilot experiences, document standardized approaches, including detailed technical guides for setting up and configuring GitHub Actions workflows for various testing types, PEGA unit testing with PegaUnit, Mockito/MockFlow usage, BDD test implementation with ReqNRoll/Playwright, and branching strategies that integrate seamlessly with GitHub Actions.
     *   **Timeline/Effort:** Weeks 18-24 (~15-18 person-days, ongoing documentation build-up)
     *   **Dependencies/Requirements:** (As previously defined)
-    *   **Deliverables:** (As previously defined) + Specific technical sections in playbooks on GitHub Actions, an example being **implementing test concurrecny to optimise test execution.**
+    *   **Deliverables:** (As previously defined) + Specific technical sections in playbooks on GitHub Actions, an example being implementing test concurrecny to optimise test execution.
 
 9.  **Facilitate Performance Profiling Setup**
     *   **Activities:**
-        *   Guide pilot squads in scripting performance tests using tools like **k6, JMeter (if existing expertise), or Playwright's performance API**, targeting mocked endpoints.
-        *   **Integrate performance test execution into GitHub Actions (e.g., as a separate workflow or a job in the main pipeline), establishing performance baselines and alerts/reports for regressions.**
+        *   Guide pilot squads in scripting performance tests using tools like k6, JMeter (if existing expertise), or Playwright's performance API, targeting mocked endpoints.
+        *   Integrate performance test execution into GitHub Actions (e.g., as a separate workflow or a job in the main pipeline), establishing performance baselines and alerts/reports for regressions.
         *   Coach on analyzing performance test results (response times, throughput, error rates).
     *   **Timeline/Effort:** Weeks 20-23 (~5-7 person-days)
     *   **Dependencies/Requirements:** (As previously defined) + Chosen performance testing tool setup, GitHub Actions integration capability for the tool.
@@ -272,8 +276,8 @@
 
 10. **Prepare for Scaling & Knowledge Transfer**
     *   **Activities:**
-        *   Develop training modules and workshop materials based on the playbooks, **including hands-on labs for GitHub Actions pipeline creation,** PEGA unit testing, mocking, and BDD automation setup.
-        *   **(No major new technical sub-tasks here, focuses on material preparation)**
+        *   Develop training modules and workshop materials based on the playbooks, including hands-on labs for GitHub Actions pipeline creation, PEGA unit testing, mocking, and BDD automation setup.
+        *   (No major new technical sub-tasks here, focuses on material preparation)
     *   **Timeline/Effort:** Weeks 22-24 (~7-10 person-days)
     *   **Dependencies/Requirements:** (As previously defined)
     *   **Deliverables:** (As previously defined) + Hands-on lab exercises for technical training.
